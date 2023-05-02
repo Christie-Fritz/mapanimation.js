@@ -5,19 +5,12 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiY2Fmcml0ejIzIiwiYSI6ImNsZ2loeTZ6djB2a2szZXBte
 
 function init(){
       
-      let map = new mapboxgl.Map({
+      map = new mapboxgl.Map({
         container: 'map',
         style: 'mapbox://styles/mapbox/streets-v11',
         center: [-71.069688, 42.353895],
         zoom: 14,
       });
-      var marker = new mapboxgl.Marker()
-      .setLngLat([-71.069688, 42.353895])
-      .addTo(map);
-
-      var marker = new mapboxgl.Marker()
-      .setLngLat([-71.08768363, 42.3470772])
-      .addTo(map);
 
   	addMarkers();
 }
@@ -25,11 +18,11 @@ function init(){
 
 async function addMarkers(){
 	
-	var locations = await getBusLocations();
+	let locations = await getBusLocations();
 
 	
 	locations.forEach(function(bus){
-		var marker = getMarker(bus.id);		
+		let marker = getMarker(bus.id);		
 		if (marker){
 			moveMarker(marker,bus);
 		}
@@ -46,20 +39,20 @@ async function addMarkers(){
 
 async function getBusLocations(){
 
-	var url = 'https://api-v3.mbta.com/vehicles?api_key=4a1383ffbf534311857fbaec05e4fd25&filter[route]=1&include=trip';	
-	var response = await fetch(url);
-	var json     = await response.json();
+	let url = 'https://api-v3.mbta.com/vehicles?api_key=4a1383ffbf534311857fbaec05e4fd25&filter[route]=1&include=trip';	
+	let response = await fetch(url);
+	let json     = await response.json();
 	return json.data;
 }
 
 function addMarker(bus){
 	// var icon = getIcon(bus);
-	var marker = new mapboxgl.Marker()
+	let marker = new mapboxgl.Marker()
     .setLngLat([bus.attributes.longitude, bus.attributes.latitude])
     .addTo(map);
     console.log(marker)
 
-	markers.push(marker);
+	markers.push({marker:marker,bus:bus});
 }
 
 function getIcon(bus){
@@ -71,17 +64,17 @@ function getIcon(bus){
 }
 
 function moveMarker(marker,bus) {
-    // marker.setPosition( {
-    // 	lat: bus.attributes.latitude, 
-    // 	lng: bus.attributes.longitude
-	// });
+    marker.setLngLat( [
+    	bus.attributes.longitude, 
+    	bus.attributes.latitude
+	]);
 }
 
 function getMarker(id){
-	var marker = markers.find(function(item){
-		return item.id === id;
+	let marker = markers.find(function(item){
+		return item.bus.id === id;
 	});
-	return marker;
+	return marker?.marker;
 }
 
 window.onload = init;
